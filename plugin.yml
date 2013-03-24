@@ -1,0 +1,55 @@
+name: ArmorHider
+main: com.github.snnappie.armorhider.ArmorHider
+version: 1.0.3
+author: Snnappie
+description: Hides a players Armor
+
+permissions:
+  armorhider.*:
+    description: Gives access to all ArmorHider commands
+    children:
+      armorhider.hideall: true
+      armorhider.hidehat: true
+      armorhider.hidechest: true
+      armorhider.hidelegs: true
+      armorhider.hideboots: true
+      armorhider.hideother: true
+      armorhider.hideenchant: true
+    armorhider.hideall:
+      description: Allows use of /hidearmor all
+      default: op
+    armorhider.hidehat:
+      description: Allows use of /hidearmor hat
+      default: op
+    armorhider.hidechest:
+      description: Allows use of /hidearmor chest
+      default: op
+    armorhider.hidelegs:
+      description: Allows use of /hidearmor legs
+      default: op
+    armorhider.hideboots:
+      description: Allows use of /hidearmor boots
+      default: op
+    armorhider.hideother:
+      description: Allows use of /hidearmor <player> <armor piece>
+      default: op
+    armorhider.hideenchant:
+      description: Allows use of /hideenchant
+      default: op
+commands:
+  hidearmor:
+    description: Hide armor commands
+    usage: /hidearmor [all, hat, chest, legs, boots]
+    aliases: ha
+  showarmor:
+    description: Show armor commands
+    usage: /showarmor [all, hat, chest, legs, boots]
+    aliases: sa
+  hideenchant:
+    description: Hide enchantments
+    usage: /hideenchant [all, hat, chest, legs, boots]
+    aliases: he
+  showenchant:
+    description: Show enchantments
+    usage: /showenchant [all, hat, chest, legs, boots]
+    aliases: se

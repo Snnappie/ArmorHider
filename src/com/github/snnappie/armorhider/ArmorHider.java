@@ -58,6 +58,7 @@ public class ArmorHider extends JavaPlugin {
 		legs = inventory.getLeggings();
 		boots = inventory.getBoots();
 		// TODO clean this up
+		// test new ideas
 		switch (piece) {
 		case ALL:
 			if (hat != null) {
