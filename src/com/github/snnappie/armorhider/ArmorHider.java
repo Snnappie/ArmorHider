@@ -48,7 +48,7 @@ public class ArmorHider extends JavaPlugin {
 	
 	
 	// hides the players armor
-	public void hideArmor(Player player, ArmorHider.ArmorPiece piece) {
+	public void hideArmor(Player player, ArmorPiece piece) {
 		PlayerInventory inventory = player.getInventory();
 		ItemStack hat, chest, legs, boots;
 		ArrayList<ItemStack> armorSet = new ArrayList<ItemStack>();
