@@ -429,6 +429,8 @@ public class ArmorHider extends JavaPlugin {
 	
 	// returns null if none
 	public Map<Enchantment, Integer> getHiddenEnchantment(Player player, ItemStack piece) {
+		if (piece == null)
+			return null;
 		return hiddenEnchantments.get(player).get(piece);
 	}
 	

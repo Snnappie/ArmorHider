@@ -109,7 +109,7 @@ public class HideCommand implements CommandExecutor {
 		}
 		
 		// TODO change this if necessary
-		if (args.length >= 3 || args.length <= 0) {
+		if (args.length >= 3) {
 			player.sendMessage(ChatColor.RED + "Incorrect arguments!");
 			return false;
 		}
@@ -127,8 +127,12 @@ public class HideCommand implements CommandExecutor {
 			command = CommandType.SHOWENCHANT;
 		}
 		
+		// short-cut for /command all
+		if (args.length == 0) {
+			piece = ArmorPiece.ALL;
+		}
 		// trying to hide one piece of armor
-		if (args.length == 1) {
+		else if (args.length == 1) {
 			piece = getArmorPieceFromString(args[0]);
 			if (piece == null) {
 				player.sendMessage(ChatColor.RED + "Invalid argument: " + args[0]);
