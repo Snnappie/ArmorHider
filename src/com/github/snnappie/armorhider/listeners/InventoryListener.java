@@ -6,7 +6,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.inventory.ItemStack;
 
 import com.github.snnappie.armorhider.ArmorHider;
 import com.github.snnappie.armorhider.ArmorHider.ArmorPiece;
@@ -26,14 +25,23 @@ public class InventoryListener implements Listener {
 		// player clicked on the armor slot
 		if (event.getSlotType() == SlotType.ARMOR || (event.isShiftClick() && event.getWhoClicked().equals(event.getInventory().getHolder()))) {
 			
-			ItemStack item = event.isShiftClick() ? event.getCurrentItem() : event.getCursor();
-			
 			// 39 -> hat
 			// 38 -> chest
 			// 37 -> legs
 			// 36 -> boots
 			int slot = event.getSlot();
-			ArmorPiece piece = ArmorHider.getArmorType(item);
+			ArmorPiece piece = ArmorHider.getArmorType(event.isShiftClick() ? event.getCurrentItem() : event.getCursor());
+			Player player = (Player) event.getWhoClicked();
+			
+			// check hidden enchantments first
+			if (event.getSlotType() == SlotType.ARMOR) {
+				ArmorPiece temp = ArmorHider.getArmorType(event.getCurrentItem());
+				if (plugin.isPlayerHidingEnchantmentOnPiece(player, temp)) {
+					plugin.showEnchantments(player, temp);
+					return;
+				}
+			}
+			
 			// the player had something that wasn't armor selected
 			if (piece == null)
 				return;
@@ -58,10 +66,10 @@ public class InventoryListener implements Listener {
 				}
 			}
 			
-			Player player = (Player) event.getWhoClicked();
+
 			
-			// check if the player has any hidden armor
-			if (!plugin.isPlayerHidingArmor(player))
+			// check if the player is hiding the armor piece they are attempting to equip
+			if (!plugin.isPlayerHidingArmorPiece(player, piece))
 				return;
 			
 			if (slot <= 39 && slot >= 36) {

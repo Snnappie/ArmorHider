@@ -1,6 +1,9 @@
 package com.github.snnappie.armorhider.listeners;
 
+import java.util.Map;
+
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,6 +11,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import com.github.snnappie.armorhider.ArmorHider;
 import com.github.snnappie.armorhider.ArmorHider.ArmorPiece;
+import com.github.snnappie.armorhider.commands.HideCommand;
 
 public class DamageListener implements Listener {
 
@@ -21,10 +25,11 @@ public class DamageListener implements Listener {
 	public void onPlayerDamage(EntityDamageEvent event) {
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
-			if (!plugin.isPlayerHidingArmor(player))
+			if (!plugin.isPlayerHidingArmor(player) && !plugin.isPlayerHidingEnchantments(player))
 				return;
 
 			switch (event.getCause()) {
+			// damages that are protected by armor
 			case CONTACT:
 			case ENTITY_ATTACK:
 			case ENTITY_EXPLOSION:
@@ -39,15 +44,32 @@ public class DamageListener implements Listener {
 				if (plugin.portalStickEnabled)
 					if ((player.getInventory().getBoots() != null) && player.getInventory().getBoots().getType() == Material.DIAMOND_BOOTS)
 						return;
+				
+				// special case: feather fall enchantments might be hidden
+				Map<Enchantment, Integer> bootsEnchantments = plugin.getHiddenEnchantment(player, player.getInventory().getBoots());
+				if (bootsEnchantments != null && bootsEnchantments.containsKey(Enchantment.PROTECTION_FALL)) {
+					plugin.showEnchantments(player, ArmorPiece.BOOTS);
+					HideCommand.informPlayer(player, HideCommand.CommandType.SHOWENCHANT);
+				}
+				
 			default:
 
 				// dealt enough damage to kill the player
 				if (event.getDamage() >= player.getHealth()) {
-					plugin.showArmor(player, ArmorPiece.ALL);
+					break;
 				}
 				return;
 			}
-			plugin.showArmor(player, ArmorPiece.ALL);
+			
+			if (plugin.isPlayerHidingArmor(player)) {
+				plugin.showArmor(player, ArmorPiece.ALL);
+				HideCommand.informPlayer(player, HideCommand.CommandType.SHOWARMOR);
+			}
+			if (plugin.isPlayerHidingEnchantments(player)) {
+				plugin.showEnchantments(player, ArmorPiece.ALL);
+				HideCommand.informPlayer(player, HideCommand.CommandType.SHOWENCHANT);
+			}
+			
 		}
 	}
 }

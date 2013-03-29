@@ -30,7 +30,7 @@ public class HideCommand implements CommandExecutor {
 	};
 	
 	
-	private static enum CommandType {
+	public static enum CommandType {
 		HIDEARMOR, SHOWARMOR, HIDEENCHANT, SHOWENCHANT;
 	}
 
@@ -70,10 +70,29 @@ public class HideCommand implements CommandExecutor {
 			plugin.showArmor(player, piece);
 			break;
 		case HIDEENCHANT:
-			System.out.println("Hide enchantments");
+			plugin.hideEnchantments(player, piece);
 			break;
 		case SHOWENCHANT:
-			System.out.println("Show enchantments");
+			plugin.showEnchantments(player, piece);
+			break;
+		}
+		
+		informPlayer(player, command);
+	}
+	
+	public static void informPlayer(Player player, CommandType command) {
+		switch (command) {
+		case HIDEARMOR:
+			player.sendMessage(ChatColor.RED + "Armor hidden!");
+			break;
+		case SHOWARMOR:
+			player.sendMessage(ChatColor.RED + "Armor revealed!");
+			break;
+		case HIDEENCHANT:
+			player.sendMessage(ChatColor.RED + "Enchantments hidden!");
+			break;
+		case SHOWENCHANT:
+			player.sendMessage(ChatColor.RED + "Enchantments revealed!");
 			break;
 		}
 	}
@@ -116,8 +135,7 @@ public class HideCommand implements CommandExecutor {
 				return false;
 			}
 			
-			// TODO adapt for enchantments
-			if (!checkHidePerms(player, piece)) {
+			if (!checkHidePerms(player, piece, command)) {
 				return true;
 			}
 			
@@ -130,23 +148,32 @@ public class HideCommand implements CommandExecutor {
 					return false;
 				}
 				
-				// TODO adapt for enchantments
-				if (!checkHidePerms(player, ArmorPiece.ALL)){
+				if (!checkHidePerms(player, ArmorPiece.ALL, command)){
 					return true;
 				}
 				
-				// special case of hiding all but one piece
-				// TODO handle enchantments
-				if (command == CommandType.HIDEARMOR) {
+				// special case: hiding all but one piece
+				switch (command) {
+				case HIDEARMOR:
 					plugin.hideArmor(player, ArmorPiece.ALL);
 					plugin.showArmor(player, piece);
-					return true;
-				} else if (command == CommandType.SHOWARMOR) {
+					break;
+				case SHOWARMOR:
 					plugin.showArmor(player, ArmorPiece.ALL);
 					plugin.hideArmor(player, piece);
-					return true;
+					break;
+				case HIDEENCHANT:
+					plugin.hideEnchantments(player, ArmorPiece.ALL);
+					plugin.showEnchantments(player, piece);
+					break;
+				case SHOWENCHANT:
+					plugin.showEnchantments(player, ArmorPiece.ALL);
+					plugin.hideEnchantments(player, piece);
+					break;
 				}
 				
+				informPlayer(player, command);
+				return true;
 			}
 			
 			// player subtracted from something that wasn't 'all'
@@ -155,7 +182,7 @@ public class HideCommand implements CommandExecutor {
 			}
 			
 			// player is trying to hide another players armor
-			if (!player.hasPermission("armorhider.hideother")) {
+			if (!player.hasPermission(ArmorHider.PERM_OTHER)) {
 				player.sendMessage(ChatColor.RED + "You do not have permission to hide other players armor!");
 				return true;
 			}
@@ -172,7 +199,7 @@ public class HideCommand implements CommandExecutor {
 				return false;
 			}
 			
-			if (!checkHidePerms(player, piece)) {
+			if (!checkHidePerms(player, piece, command)) {
 				return true;
 			}
 			
@@ -183,37 +210,42 @@ public class HideCommand implements CommandExecutor {
 		return true;
 	}
 	
-	private boolean checkHidePerms(Player player, ArmorPiece piece) {
-
-		
-		// handle permissions
+	private boolean checkHidePerms(Player player, ArmorPiece piece, CommandType command) {
+		// handle permissions for hide enchantments
+		if (command == CommandType.SHOWENCHANT || command == CommandType.HIDEENCHANT) {
+			if (!player.hasPermission(ArmorHider.PERM_ENCHANT)) {
+				player.sendMessage(ChatColor.RED + "You do not have permissions to hide enchantments!");
+				return false;
+			}
+		}
+		// handle permissions for individual pieces
 		switch (piece) {
 		case HAT:
-			if (!player.hasPermission("armorhider.hidehat") && !player.hasPermission("armorhider.hideall")) {
+			if (!player.hasPermission(ArmorHider.PERM_HAT) && !player.hasPermission(ArmorHider.PERM_ALL)) {
 				player.sendMessage(ChatColor.RED + "You do not have permissions to hide your hat!");
 				return false;
 			}
 			break;
 		case CHEST:
-			if (!player.hasPermission("armorhider.hidechest") && !player.hasPermission("armorhider.hideall")) {
+			if (!player.hasPermission(ArmorHider.PERM_CHEST) && !player.hasPermission(ArmorHider.PERM_ALL)) {
 				player.sendMessage(ChatColor.RED + "You do not have permissions to hide your chestplate!");
 				return false;
 			}
 			break;
 		case LEGS:
-			if (!player.hasPermission("armorhider.hidelegs") && !player.hasPermission("armorhider.hideall")) {
+			if (!player.hasPermission(ArmorHider.PERM_LEGS) && !player.hasPermission(ArmorHider.PERM_ALL)) {
 				player.sendMessage(ChatColor.RED + "You do not have permissions to hide your leggings!");
 				return false;
 			}
 			break;
 		case BOOTS:
-			if (!player.hasPermission("armorhider.hideboots") && !player.hasPermission("armorhider.hideall")) {
+			if (!player.hasPermission(ArmorHider.PERM_BOOTS) && !player.hasPermission(ArmorHider.PERM_ALL)) {
 				player.sendMessage(ChatColor.RED + "You do not have permissions to hide your boots!");
 				return false;
 			}
 			break;
 		case ALL:
-			if (!player.hasPermission("armorhider.hideall")) {
+			if (!player.hasPermission(ArmorHider.PERM_ALL)) {
 				player.sendMessage(ChatColor.RED + "You do not have permissions to hide all your armor!");
 				return false;
 			}

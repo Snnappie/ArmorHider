@@ -32,5 +32,9 @@ public class PlayerLeaveListener implements Listener {
 		if (plugin.isPlayerHidingArmor(player)) {
 			plugin.showArmor(player, ArmorPiece.ALL);
 		}
+		
+		if (plugin.isPlayerHidingEnchantments(player)) {
+			plugin.showEnchantments(player, ArmorPiece.ALL);
+		}
 	}
 }
