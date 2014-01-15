@@ -39,6 +39,7 @@ public class ArmorHider extends JavaPlugin {
 	public boolean portalStickEnabled;
 	public void onEnable() {
 		portalStickEnabled = getServer().getPluginManager().getPlugin("PortalStick") != null;
+
 		getCommand("hidearmor").setExecutor(new HideCommand(this));
 		getCommand("showarmor").setExecutor(new HideCommand(this));
 		
@@ -432,6 +433,10 @@ public class ArmorHider extends JavaPlugin {
 		if (piece == null)
 			return null;
 		return hiddenEnchantments.get(player).get(piece);
+	}
+	
+	public List<ItemStack> getHiddenArmor(Player player) {
+		return hiddenArmor.get(player);
 	}
 	
 	// returns the enumerated type for the given piece of armor

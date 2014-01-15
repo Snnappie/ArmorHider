@@ -1,5 +1,6 @@
 package com.github.snnappie.armorhider.listeners;
 
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Material;
@@ -8,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.github.snnappie.armorhider.ArmorHider;
 import com.github.snnappie.armorhider.ArmorHider.ArmorPiece;
@@ -21,7 +23,7 @@ public class DamageListener implements Listener {
 		this.plugin = plugin;
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled=true)
 	public void onPlayerDamage(EntityDamageEvent event) {
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
@@ -41,9 +43,20 @@ public class DamageListener implements Listener {
 				break;
 				
 			case FALL:
-				if (plugin.portalStickEnabled)
+				if (plugin.portalStickEnabled) {
+					if (plugin.getHiddenArmor(player) != null) {
+						List<ItemStack> armor = plugin.getHiddenArmor(player);
+						for (ItemStack i : armor) {
+							if (i.getType() == Material.DIAMOND_BOOTS) {
+								event.setCancelled(true);
+								return;
+							}
+						}
+					}
+					
 					if ((player.getInventory().getBoots() != null) && player.getInventory().getBoots().getType() == Material.DIAMOND_BOOTS)
 						return;
+				}
 				
 				// special case: feather fall enchantments might be hidden
 				Map<Enchantment, Integer> bootsEnchantments = plugin.getHiddenEnchantment(player, player.getInventory().getBoots());
