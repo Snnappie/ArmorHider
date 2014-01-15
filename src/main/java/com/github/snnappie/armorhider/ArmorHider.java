@@ -19,9 +19,6 @@ import com.github.snnappie.armorhider.listeners.DamageListener;
 import com.github.snnappie.armorhider.listeners.InventoryListener;
 import com.github.snnappie.armorhider.listeners.PlayerLeaveListener;
 
-/*
- * TODO clean up this class in it's entirety - it is very poorly structured
- */
 public class ArmorHider extends JavaPlugin {
 	
 	public static final String PERM_ALL = "armorhider.hideall";
@@ -33,12 +30,13 @@ public class ArmorHider extends JavaPlugin {
 	public static final String PERM_OTHER = "armorhider.hideother";
 	public static final String PERM_ENCHANT = "armorhider.hideenchant";
 
-	private HashMap<Player, List<ItemStack>> hiddenArmor = new HashMap<Player, List<ItemStack>>();
-	private HashMap<Player, HashMap<ItemStack, Map<Enchantment, Integer>>> hiddenEnchantments = new HashMap<Player, HashMap<ItemStack, Map<Enchantment, Integer>>>();
-	
-	public boolean portalStickEnabled;
+	private HashMap<Player, List<ItemStack>> hiddenArmor = new HashMap<>();
+	private HashMap<Player, HashMap<ItemStack, Map<Enchantment, Integer>>> hiddenEnchantments = new HashMap<>();
+
+    // TODO: add these to a different branch for my local MC server - it doesn't make sense in production.
+//	public boolean portalStickEnabled;
 	public void onEnable() {
-		portalStickEnabled = getServer().getPluginManager().getPlugin("PortalStick") != null;
+//		portalStickEnabled = getServer().getPluginManager().getPlugin("PortalStick") != null;
 
 		getCommand("hidearmor").setExecutor(new HideCommand(this));
 		getCommand("showarmor").setExecutor(new HideCommand(this));
@@ -63,11 +61,13 @@ public class ArmorHider extends JavaPlugin {
 			}
 		}
 	}
-	
-	
-	/*
-	 * Hides the players armor
-	 */
+
+
+    /**
+     * Hides the ArmorPiece for the received Player.
+     * @param player Player to hide armor
+     * @param piece ArmorPiece to hide
+     */
 	public void hideArmor(Player player, ArmorPiece piece) {
 		
 		// reveal enchantments if player tries to hide armor
@@ -79,7 +79,7 @@ public class ArmorHider extends JavaPlugin {
 		
 		PlayerInventory inventory = player.getInventory();
 		ItemStack hat, chest, legs, boots;
-		ArrayList<ItemStack> armorSet = new ArrayList<ItemStack>();
+		ArrayList<ItemStack> armorSet = new ArrayList<>();
 
 		hat = inventory.getHelmet();
 		chest = inventory.getChestplate();
@@ -134,11 +134,12 @@ public class ArmorHider extends JavaPlugin {
 		addArmor(player, armorSet);
 	}
 
-	
-	
-	/*
-	 * reveals the players armor if it is hidden
-	 */
+
+    /**
+     * Reveals the ArmorPiece for the received Player, if they are currently hiding that piece of armor.
+     * @param player Player to reveal armor
+     * @param piece ArmorPiece to reveal
+     */
 	public void showArmor(Player player, ArmorPiece piece) {
 		if (!isPlayerHidingArmor(player))
 			return;
@@ -191,7 +192,7 @@ public class ArmorHider extends JavaPlugin {
 	
 	// removes the armor from hidden armor for the given player
 	private List<ItemStack> removeArmor(Player player, ArmorPiece piece) {
-		List<ItemStack> ret = new ArrayList<ItemStack>();
+		List<ItemStack> ret = new ArrayList<>();
 		if (hiddenArmor.get(player) == null)
 			return ret;
 		if (piece == ArmorPiece.ALL)
@@ -209,12 +210,15 @@ public class ArmorHider extends JavaPlugin {
 			hiddenArmor.remove(player);
 		return ret;
 	}
-	
-	
-	
-	/*
-	 * Hides all the enchantments for the given piece of armor
-	 */
+
+
+    /**
+     * Hides all enchantments on the received piece of armor for the received player.
+     *
+     * This does not work on a per enchantment granularity (since there is no use-case).
+     * @param player Player to hide enchantment
+     * @param piece ArmorPiece to hide enchantment
+     */
 	public void hideEnchantments(Player player, ArmorPiece piece) {
 		ItemStack hat, chest, legs, boots;
 		PlayerInventory inventory = player.getInventory();
@@ -223,81 +227,40 @@ public class ArmorHider extends JavaPlugin {
 		chest = inventory.getChestplate();
 		legs = inventory.getLeggings();
 		boots = inventory.getBoots();
+
+        ItemStack[] armor = new ItemStack[4];
 		
-		HashMap<ItemStack, Map<Enchantment, Integer>> enchantments = new HashMap<ItemStack, Map<Enchantment, Integer>>();
-		
+		HashMap<ItemStack, Map<Enchantment, Integer>> enchantments = new HashMap<>();
+
 		switch (piece) {
 		case ALL:
-			if (hat != null && hat.getEnchantments() != null) {
-				Map<Enchantment, Integer> enchantment = hat.getEnchantments();
-				for (Enchantment e : hat.getEnchantments().keySet()) {
-					hat.removeEnchantment(e);
-				}
-				enchantments.put(hat, enchantment);
-			}
-
-			if (chest != null && chest.getEnchantments() != null) {
-				Map<Enchantment, Integer> enchantment = chest.getEnchantments();
-				
-				for (Enchantment e : chest.getEnchantments().keySet()) {
-					chest.removeEnchantment(e);
-				}
-				enchantments.put(chest, enchantment);
-			}
-
-			if (legs != null && legs.getEnchantments() != null) {
-				Map<Enchantment, Integer> enchantment = legs.getEnchantments();
-				for (Enchantment e : legs.getEnchantments().keySet()) {
-					legs.removeEnchantment(e);
-				}
-				enchantments.put(legs, enchantment);
-			}
-			if (boots != null && boots.getEnchantments() != null) {
-				Map<Enchantment, Integer> enchantment = boots.getEnchantments();
-				for (Enchantment e : boots.getEnchantments().keySet()) {
-					boots.removeEnchantment(e);
-				}
-				
-				enchantments.put(boots, enchantment);
-			}
+            armor = new ItemStack[]{ hat, chest, legs, boots };
 			break;
 		case BOOTS:
-			if (boots != null && boots.getEnchantments() != null) {
-				Map<Enchantment, Integer> enchantment = boots.getEnchantments();
-				for (Enchantment e : boots.getEnchantments().keySet()) {
-					boots.removeEnchantment(e);
-				}
-				enchantments.put(boots, enchantment);
-			}
+            armor[0] = boots;
 			break;
 		case HAT:
-			if (hat != null && hat.getEnchantments() != null) {
-				Map<Enchantment, Integer> enchantment = hat.getEnchantments();
-				for (Enchantment e : hat.getEnchantments().keySet()) {
-					hat.removeEnchantment(e);
-				}
-				enchantments.put(hat, enchantment);
-			}
+            armor[0] = hat;
 			break;
 		case LEGS:
-			if (legs != null && legs.getEnchantments() != null) {
-				Map<Enchantment, Integer> enchantment = legs.getEnchantments();
-				for (Enchantment e : legs.getEnchantments().keySet()) {
-					legs.removeEnchantment(e);
-				}
-				enchantments.put(legs, enchantment);
-			}
+            armor[0] = legs;
 			break;
 		case CHEST:
-			if (chest != null && chest.getEnchantments() != null) {
-				Map<Enchantment, Integer> enchantment = chest.getEnchantments();
-				for (Enchantment e : chest.getEnchantments().keySet()) {
-					chest.removeEnchantment(e);
-				}
-				enchantments.put(chest, enchantment);
-			}
+            armor[0] = chest;
 			break;
-		} // end switch
+		}
+
+        // remove the enchantments for applicable armor pieces, if possible
+        for (ItemStack i : armor) {
+            if (i != null && i.getEnchantments() != null) {
+                // could make this a local function, but Java doesn't have first-class functions
+                Map<Enchantment, Integer> enchantment = i.getEnchantments();
+                for (Enchantment e : enchantment.keySet()) {
+                    i.removeEnchantment(e);
+                }
+                enchantments.put(i, enchantment);
+            }
+        }
 		
 		addEnchantments(player, enchantments);
 	}
@@ -312,26 +275,27 @@ public class ArmorHider extends JavaPlugin {
 		if (hiddenEnchantments.containsKey(player)) {
 			if (hiddenEnchantments.get(player).size() == 4)
 				return;
-			
-			Iterator<Map.Entry<ItemStack, Map<Enchantment, Integer>>> iter = enchantments.entrySet().iterator();
-			while (iter.hasNext()) {
-				Map.Entry<ItemStack, Map<Enchantment, Integer>> entry = iter.next();
-				ItemStack armorPiece = entry.getKey();
-				Map<Enchantment, Integer> enchant = entry.getValue();
-				if (!hiddenEnchantments.get(player).containsKey(armorPiece)) {
-					hiddenEnchantments.get(player).put(armorPiece, enchant);
-				}
-			}
+
+            for (Map.Entry<ItemStack, Map<Enchantment, Integer>> entry : enchantments.entrySet()) {
+                ItemStack armorPiece = entry.getKey();
+                Map<Enchantment, Integer> enchant = entry.getValue();
+                if (!hiddenEnchantments.get(player).containsKey(armorPiece)) {
+                    hiddenEnchantments.get(player).put(armorPiece, enchant);
+                }
+            }
 			
 		} else {
 			hiddenEnchantments.put(player, enchantments);
 		}
 	}
-	
-	
-	/*
-	 * Show the players hidden enchantments
-	 */
+
+
+    /**
+     * Reveals the enchantments on a received ArmorPiece for the received player, if they are currently hiding
+     * enchantments on that piece of armor.
+     * @param player Player to reveal enchantment
+     * @param piece ArmorPiece to reveal enchantment
+     */
 	public void showEnchantments(Player player, ArmorPiece piece) {
 		// player is not hiding enchantments
 		if (!isPlayerHidingEnchantments(player))
@@ -372,7 +336,7 @@ public class ArmorHider extends JavaPlugin {
 	
 	// removes the hidden enchantments from the hashmap
 	private Map<ItemStack, Map<Enchantment, Integer>> removeEnchantments(Player player, ArmorPiece piece) {
-		Map<ItemStack, Map<Enchantment, Integer>> ret = new HashMap<ItemStack, Map<Enchantment, Integer>>();
+		Map<ItemStack, Map<Enchantment, Integer>> ret = new HashMap<>();
 		if (!isPlayerHidingEnchantments(player))
 			return ret;
 		if (piece == ArmorPiece.ALL)
@@ -396,15 +360,31 @@ public class ArmorHider extends JavaPlugin {
 		
 		return ret;
 	}
-	
+
+    /**
+     *
+     * @param player Player to check for hidden armor
+     * @return true if the received player is currently hiding any armor
+     */
 	public boolean isPlayerHidingArmor(Player player) {
 		return hiddenArmor.containsKey(player);
 	}
-	
+
+    /**
+     *
+     * @param player Player to check for hidden enchantments
+     * @return true if the received player is currently hiding enchantments on any piece of armor
+     */
 	public boolean isPlayerHidingEnchantments(Player player) {
 		return hiddenEnchantments.containsKey(player);
 	}
-	
+
+    /**
+     * Similar to isPlayerHidingArmor, but checks if the player is hiding a specific piece
+     * @param player Player to check for hidden armor
+     * @param piece ArmorPiece to check
+     * @return true if the received player is hiding the received piece of armor
+     */
 	public boolean isPlayerHidingArmorPiece(Player player, ArmorPiece piece) {
 		if (!isPlayerHidingArmor(player))
 			return false;
@@ -415,7 +395,13 @@ public class ArmorHider extends JavaPlugin {
 		
 		return false;
 	}
-	
+
+    /**
+     *
+     * @param player Player to check for hidden enchantments
+     * @param piece ArmorPiece to check
+     * @return true if the received player is hiding enchantments on the received ArmorPiece
+     */
 	public boolean isPlayerHidingEnchantmentOnPiece(Player player, ArmorPiece piece) {
 		
 		if (!isPlayerHidingEnchantments(player))
@@ -427,19 +413,33 @@ public class ArmorHider extends JavaPlugin {
 		
 		return false;
 	}
-	
-	// returns null if none
+
+    /**
+     *
+     * @param player Player to check for hidden enchantments
+     * @param piece ArmorPiece to check
+     * @return all the hidden enchantments for the received Player, null if none.
+     */
 	public Map<Enchantment, Integer> getHiddenEnchantment(Player player, ItemStack piece) {
 		if (piece == null)
 			return null;
 		return hiddenEnchantments.get(player).get(piece);
 	}
-	
+
+    /**
+     *
+     * @param player Player to check for hidden armor
+     * @return The set of armor that is being hidden by the received player, null if none.
+     */
 	public List<ItemStack> getHiddenArmor(Player player) {
 		return hiddenArmor.get(player);
 	}
-	
-	// returns the enumerated type for the given piece of armor
+
+    /**
+     * Gets the ArmorPiece associated for any piece of armor.
+     * @param armor ItemStack of the desired armor piece.
+     * @return ArmorPiece enum type associated with each armor piece
+     */
 	public static ArmorPiece getArmorType(ItemStack armor) {
 		switch (armor.getType()) {
 		case LEATHER_HELMET:
@@ -474,6 +474,6 @@ public class ArmorHider extends JavaPlugin {
 	
 	// enumerated type of each piece of armor, including all of them
 	public static enum ArmorPiece {
-		HAT, CHEST, LEGS, BOOTS, ALL;
+		HAT, CHEST, LEGS, BOOTS, ALL
 	}
 }

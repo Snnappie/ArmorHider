@@ -16,9 +16,11 @@ public class InventoryListener implements Listener {
 	public InventoryListener(ArmorHider plugin) {
 		this.plugin = plugin;
 	}
-	
-	// TODO this needs to be tweaked!
-	@SuppressWarnings("deprecation")
+
+    /**
+     * EventHandler to prevent a player from equipping armor that is also hidden
+     * @param event event
+     */
 	@EventHandler(ignoreCancelled = true)
 	public void onArmorEquip(InventoryClickEvent event) {
 		

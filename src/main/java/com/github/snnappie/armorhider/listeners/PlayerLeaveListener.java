@@ -17,17 +17,25 @@ public class PlayerLeaveListener implements Listener {
 	public PlayerLeaveListener(ArmorHider plugin) {
 		this.plugin = plugin;
 	}
-	
+
+    /**
+     * If a player leaves the server while hiding armor or enchantments, reveal them.
+     * @param event event
+     */
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		playerDisconnected(event.getPlayer());
 	}
-	
+
+    /**
+     * If a player is kicked from the server while hiding armor or enchantments, reveal them.
+     * @param event event
+     */
 	@EventHandler
 	public void onPlayerKick(PlayerKickEvent event) {
 		playerDisconnected(event.getPlayer());
 	}
-	
+
 	private void playerDisconnected(Player player) {
 		if (plugin.isPlayerHidingArmor(player)) {
 			plugin.showArmor(player, ArmorPiece.ALL);

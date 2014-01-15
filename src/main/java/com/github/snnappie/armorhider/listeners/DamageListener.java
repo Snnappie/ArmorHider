@@ -43,20 +43,21 @@ public class DamageListener implements Listener {
 				break;
 				
 			case FALL:
-				if (plugin.portalStickEnabled) {
-					if (plugin.getHiddenArmor(player) != null) {
-						List<ItemStack> armor = plugin.getHiddenArmor(player);
-						for (ItemStack i : armor) {
-							if (i.getType() == Material.DIAMOND_BOOTS) {
-								event.setCancelled(true);
-								return;
-							}
-						}
-					}
-					
-					if ((player.getInventory().getBoots() != null) && player.getInventory().getBoots().getType() == Material.DIAMOND_BOOTS)
-						return;
-				}
+                // TODO: put this on a local branch or something - doesn't belong in release.
+//				if (plugin.portalStickEnabled) {
+//					if (plugin.getHiddenArmor(player) != null) {
+//						List<ItemStack> armor = plugin.getHiddenArmor(player);
+//						for (ItemStack i : armor) {
+//							if (i.getType() == Material.DIAMOND_BOOTS) {
+//								event.setCancelled(true);
+//								return;
+//							}
+//						}
+//					}
+//
+//					if ((player.getInventory().getBoots() != null) && player.getInventory().getBoots().getType() == Material.DIAMOND_BOOTS)
+//						return;
+//				}
 				
 				// special case: feather fall enchantments might be hidden
 				Map<Enchantment, Integer> bootsEnchantments = plugin.getHiddenEnchantment(player, player.getInventory().getBoots());

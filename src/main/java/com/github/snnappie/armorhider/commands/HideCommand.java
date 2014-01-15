@@ -31,7 +31,7 @@ public class HideCommand implements CommandExecutor {
 	
 	
 	public static enum CommandType {
-		HIDEARMOR, SHOWARMOR, HIDEENCHANT, SHOWENCHANT;
+		HIDEARMOR, SHOWARMOR, HIDEENCHANT, SHOWENCHANT
 	}
 
 	
@@ -100,7 +100,7 @@ public class HideCommand implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
-		Player player = null;
+		Player player;
 		if (sender instanceof Player) {
 			player = (Player) sender;
 		} else {
@@ -115,7 +115,7 @@ public class HideCommand implements CommandExecutor {
 		}
 		
 		
-		CommandType command = null;
+		CommandType command;
 		ArmorPiece piece = null;
 		if (cmd.getName().equalsIgnoreCase("hidearmor")) {
 			command = CommandType.HIDEARMOR;
@@ -125,7 +125,7 @@ public class HideCommand implements CommandExecutor {
 			command = CommandType.HIDEENCHANT;
 		} else if (cmd.getName().equalsIgnoreCase("showenchant")) {
 			command = CommandType.SHOWENCHANT;
-		}
+		} else return false;
 		
 		// short-cut for /command all
 		if (args.length == 0) {
