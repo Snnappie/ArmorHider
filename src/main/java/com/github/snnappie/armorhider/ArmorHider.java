@@ -30,13 +30,12 @@ public class ArmorHider extends JavaPlugin {
 	public static final String PERM_OTHER = "armorhider.hideother";
 	public static final String PERM_ENCHANT = "armorhider.hideenchant";
 
+    public static final String PERM_AUTO  = "armorhider.autohide";
+
 	private HashMap<Player, List<ItemStack>> hiddenArmor = new HashMap<>();
 	private HashMap<Player, HashMap<ItemStack, Map<Enchantment, Integer>>> hiddenEnchantments = new HashMap<>();
 
-    // TODO: add these to a different branch for my local MC server - it doesn't make sense in production.
-//	public boolean portalStickEnabled;
 	public void onEnable() {
-//		portalStickEnabled = getServer().getPluginManager().getPlugin("PortalStick") != null;
 
 		getCommand("hidearmor").setExecutor(new HideCommand(this));
 		getCommand("showarmor").setExecutor(new HideCommand(this));
@@ -220,45 +219,23 @@ public class ArmorHider extends JavaPlugin {
      * @param piece ArmorPiece to hide enchantment
      */
 	public void hideEnchantments(Player player, ArmorPiece piece) {
-		ItemStack hat, chest, legs, boots;
 		PlayerInventory inventory = player.getInventory();
-		
-		hat = inventory.getHelmet();
-		chest = inventory.getChestplate();
-		legs = inventory.getLeggings();
-		boots = inventory.getBoots();
 
-        ItemStack[] armor = new ItemStack[4];
-		
+        ItemStack[] armor = inventory.getArmorContents();
 		HashMap<ItemStack, Map<Enchantment, Integer>> enchantments = new HashMap<>();
-
-		switch (piece) {
-		case ALL:
-            armor = new ItemStack[]{ hat, chest, legs, boots };
-			break;
-		case BOOTS:
-            armor[0] = boots;
-			break;
-		case HAT:
-            armor[0] = hat;
-			break;
-		case LEGS:
-            armor[0] = legs;
-			break;
-		case CHEST:
-            armor[0] = chest;
-			break;
-		}
 
         // remove the enchantments for applicable armor pieces, if possible
         for (ItemStack i : armor) {
-            if (i != null && i.getEnchantments() != null) {
-                // could make this a local function, but Java doesn't have first-class functions
-                Map<Enchantment, Integer> enchantment = i.getEnchantments();
-                for (Enchantment e : enchantment.keySet()) {
-                    i.removeEnchantment(e);
+            if (i.getEnchantments() != null) {
+                ArmorPiece iPiece = ArmorHider.getArmorType(i);
+                if (iPiece == piece || piece == ArmorPiece.ALL) {
+                    // could make this a local function, but Java doesn't have first-class functions
+                    Map<Enchantment, Integer> enchantment = i.getEnchantments();
+                    for (Enchantment e : enchantment.keySet()) {
+                        i.removeEnchantment(e);
+                    }
+                    enchantments.put(i, enchantment);
                 }
-                enchantments.put(i, enchantment);
             }
         }
 		
@@ -421,10 +398,12 @@ public class ArmorHider extends JavaPlugin {
      * @return all the hidden enchantments for the received Player, null if none.
      */
 	public Map<Enchantment, Integer> getHiddenEnchantment(Player player, ItemStack piece) {
-		if (piece == null)
-			return null;
-		return hiddenEnchantments.get(player).get(piece);
+        return piece != null && hiddenEnchantments.get(player) != null ? hiddenEnchantments.get(player).get(piece) : null;
 	}
+
+    public HashMap<ItemStack, Map<Enchantment, Integer>> getAllEnchantments(Player player) {
+        return hiddenEnchantments.get(player);
+    }
 
     /**
      *

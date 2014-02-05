@@ -1,6 +1,6 @@
 name: ArmorHider
 main: com.github.snnappie.armorhider.ArmorHider
-version: 1.1.1
+version: 1.2.0
 author: Snnappie
 description: Hides a players Armor
 
@@ -15,6 +15,7 @@ permissions:
       armorhider.hideboots: true
       armorhider.hideother: true
       armorhider.hideenchant: true
+      armorhider.autohide: true
     armorhider.hideall:
       description: Allows use of /hidearmor all
       default: op
@@ -35,6 +36,9 @@ permissions:
       default: op
     armorhider.hideenchant:
       description: Allows use of /hideenchant
+      default: op
+    armorhider.autohide:
+      description: Gives players the auto-hide functionality that automatically re-hides armor upon taking damage
       default: op
 commands:
   hidearmor:
