@@ -283,30 +283,33 @@ public class ArmorHider extends JavaPlugin {
 		for (Map.Entry<ItemStack, Map<Enchantment, Integer>> entry : enchantments.entrySet()) {
 			ItemStack armorPiece = entry.getKey();
 			Map<Enchantment, Integer> enchantment = entry.getValue();
-			switch (getArmorType(armorPiece)) {
-			case BOOTS:
-				ItemStack boots = inventory.getBoots();
-				boots.addEnchantments(enchantment);
-				inventory.setBoots(boots);
-				break;
-			case CHEST:
-				ItemStack chest = inventory.getChestplate();
-				chest.addEnchantments(enchantment);
-				inventory.setChestplate(chest);
-				break;
-			case HAT:
-				ItemStack hat = inventory.getHelmet();
-				hat.addEnchantments(enchantment);
-				inventory.setHelmet(hat);
-				break;
-			case LEGS:
-				ItemStack legs = inventory.getLeggings();
-				legs.addEnchantments(enchantment);
-				inventory.setLeggings(legs);
-				break;
-			case ALL:
-				break;
-			}
+            ArmorPiece ap = getArmorType(armorPiece);
+            if (ap != null) {
+                switch (ap) {
+                case BOOTS:
+                    ItemStack boots = inventory.getBoots();
+                    boots.addEnchantments(enchantment);
+                    inventory.setBoots(boots);
+                    break;
+                case CHEST:
+                    ItemStack chest = inventory.getChestplate();
+                    chest.addEnchantments(enchantment);
+                    inventory.setChestplate(chest);
+                    break;
+                case HAT:
+                    ItemStack hat = inventory.getHelmet();
+                    hat.addEnchantments(enchantment);
+                    inventory.setHelmet(hat);
+                    break;
+                case LEGS:
+                    ItemStack legs = inventory.getLeggings();
+                    legs.addEnchantments(enchantment);
+                    inventory.setLeggings(legs);
+                    break;
+                case ALL:
+                    break;
+                }
+            }
 		}
 	}
 	
