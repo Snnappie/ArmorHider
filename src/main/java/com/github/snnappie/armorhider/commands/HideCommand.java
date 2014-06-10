@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import com.github.snnappie.armorhider.ArmorHider;
 import com.github.snnappie.armorhider.ArmorHider.ArmorPiece;
 
+import java.util.HashMap;
+
 
 public class HideCommand implements CommandExecutor {
 
@@ -20,43 +22,34 @@ public class HideCommand implements CommandExecutor {
 		this.plugin = plugin;
 	}
 
-	// TODO review better ways to handle this
-	private static String[][] armorStrings = { 
-		{ "all" }, // 0
-		{ "hat", "head", "helmet" }, // 1
-		{ "chest", "body", "chestpiece", "chestplate" }, // 2
-		{ "legs", "leggings" }, // 3
-		{ "boots", "shoes", "feet" } // 4
-	};
+    private static HashMap<String, ArmorPiece> armorPieces = new HashMap<>(13);
+    // WHY CAN'T THIS BE SCALA
+    // WHY DO PEOPLE STILL PROGRAM IN JAVA
+    static {
+
+        // could also make all of these configurable
+        armorPieces.put("all", ArmorPiece.ALL);
+
+        armorPieces.put("hat", ArmorPiece.HAT);
+        armorPieces.put("head", ArmorPiece.HAT);
+        armorPieces.put("helmet", ArmorPiece.HAT);
+
+        armorPieces.put("chest", ArmorPiece.CHEST);
+        armorPieces.put("body", ArmorPiece.CHEST);
+        armorPieces.put("chestpiece", ArmorPiece.CHEST);
+        armorPieces.put("chestplate", ArmorPiece.CHEST);
+
+        armorPieces.put("legs", ArmorPiece.LEGS);
+        armorPieces.put("leggings", ArmorPiece.LEGS);
+
+        armorPieces.put("boots", ArmorPiece.BOOTS);
+        armorPieces.put("shoes", ArmorPiece.BOOTS);
+        armorPieces.put("feet", ArmorPiece.BOOTS);
+    }
 	
 	
 	public static enum CommandType {
 		HIDEARMOR, SHOWARMOR, HIDEENCHANT, SHOWENCHANT
-	}
-
-	
-	public static ArmorPiece getArmorPieceFromString(String piece) {
-		
-		for (int i = 0; i < armorStrings.length; i++) {
-			for (String pieceString : armorStrings[i]) {
-				if (pieceString.equalsIgnoreCase(piece)) {
-					switch (i) {
-					case 0:
-						return ArmorPiece.ALL;
-					case 1:
-						return ArmorPiece.HAT;
-					case 2:
-						return ArmorPiece.CHEST;
-					case 3:
-						return ArmorPiece.LEGS;
-					case 4:
-						return ArmorPiece.BOOTS;
-					}
-				}
-			}
-		}
-		
-		return null;
 	}
 
 	
@@ -79,7 +72,7 @@ public class HideCommand implements CommandExecutor {
 		
 		informPlayer(player, command);
 	}
-	
+
 	public static void informPlayer(Player player, CommandType command) {
 		switch (command) {
 		case HIDEARMOR:
@@ -117,15 +110,13 @@ public class HideCommand implements CommandExecutor {
 		
 		CommandType command;
 		ArmorPiece piece = null;
-		if (cmd.getName().equalsIgnoreCase("hidearmor")) {
-			command = CommandType.HIDEARMOR;
-		} else if (cmd.getName().equalsIgnoreCase("showarmor")) {
-			command = CommandType.SHOWARMOR;
-		} else if (cmd.getName().equalsIgnoreCase("hideenchant")) {
-			command = CommandType.HIDEENCHANT;
-		} else if (cmd.getName().equalsIgnoreCase("showenchant")) {
-			command = CommandType.SHOWENCHANT;
-		} else return false;
+        switch (cmd.getName().toLowerCase()) {
+            case "hidearmor":   command = CommandType.HIDEARMOR;   break;
+            case "showarmor":   command = CommandType.SHOWARMOR;   break;
+            case "hideenchant": command = CommandType.HIDEENCHANT; break;
+            case "showenchant": command = CommandType.SHOWENCHANT; break;
+            default: return false;
+        }
 		
 		// short-cut for /command all
 		if (args.length == 0) {
@@ -133,20 +124,17 @@ public class HideCommand implements CommandExecutor {
 		}
 		// trying to hide one piece of armor
 		else if (args.length == 1) {
-			piece = getArmorPieceFromString(args[0]);
+			piece = armorPieces.get(args[0]);
 			if (piece == null) {
 				player.sendMessage(ChatColor.RED + "Invalid argument: " + args[0]);
 				return false;
 			}
-			
-			if (!checkHidePerms(player, piece, command)) {
-				return true;
-			}
+
 			
 		} else if (args.length == 2) {
 			// player is hiding all armor except for one piece
 			if (args[0].equalsIgnoreCase("all") && args[1].startsWith("-")) {
-				piece = getArmorPieceFromString(args[1].substring(1));
+				piece = armorPieces.get(args[1].substring(1));
 				if (piece == null) {
 					player.sendMessage(ChatColor.RED + "Invalid argument: " + args[1]);
 					return false;
@@ -197,18 +185,19 @@ public class HideCommand implements CommandExecutor {
 				return true;
 			}
 			
-			piece = getArmorPieceFromString(args[1]);
+			piece = armorPieces.get(args[1]);
 			if (piece == null) {
 				sender.sendMessage(ChatColor.RED + "Invalid argument: " + args[1]);
 				return false;
 			}
-			
-			if (!checkHidePerms(player, piece, command)) {
-				return true;
-			}
+
 			
 		}
-		
+
+
+        if (!checkHidePerms(player, piece, command))
+            return true;
+
 		// if we got here, run the command
 		run(command, player, piece);
 		return true;

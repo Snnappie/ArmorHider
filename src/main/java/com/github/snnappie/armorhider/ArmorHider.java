@@ -74,8 +74,8 @@ public class ArmorHider extends JavaPlugin {
 			showEnchantments(player, piece);
 		else if (piece == ArmorPiece.ALL && isPlayerHidingEnchantments(player))
 			showEnchantments(player, ArmorPiece.ALL);
-		
-		
+
+
 		PlayerInventory inventory = player.getInventory();
 		ItemStack hat, chest, legs, boots;
 		ArrayList<ItemStack> armorSet = new ArrayList<>();
@@ -144,24 +144,27 @@ public class ArmorHider extends JavaPlugin {
 			return;
 		PlayerInventory inventory = player.getInventory();
 		List<ItemStack> armorSet = removeArmor(player, piece);
-		
+
 		for (ItemStack armorPiece : armorSet) {
-			switch (ArmorHider.getArmorType(armorPiece)) {
-			case BOOTS:
-				inventory.setBoots(armorPiece);
-				break;
-			case CHEST:
-				inventory.setChestplate(armorPiece);
-				break;
-			case HAT:
-				inventory.setHelmet(armorPiece);
-				break;
-			case LEGS:
-				inventory.setLeggings(armorPiece);
-				break;
-			case ALL:
-				break;
-			}
+            ArmorPiece p = getArmorType(armorPiece);
+            if (p != null) {
+                switch (p) {
+                case BOOTS:
+                    inventory.setBoots(armorPiece);
+                    break;
+                case CHEST:
+                    inventory.setChestplate(armorPiece);
+                    break;
+                case HAT:
+                    inventory.setHelmet(armorPiece);
+                    break;
+                case LEGS:
+                    inventory.setLeggings(armorPiece);
+                    break;
+                case ALL:
+                    break;
+                }
+            }
 		}
 	}
 	
